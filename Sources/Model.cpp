@@ -1,9 +1,11 @@
 #include "../Headers/model.h"
 
-Model::Model(const char* path, std::string dir)
+Model::Model(const char* path)
 {
-	directory = dir;
 	loadModel(path);
+	std::string dir(path);
+	directory = dir.substr(0, dir.find_last_of('/'));
+
 }
 
 void Model::Draw(Shader& shader)
@@ -15,7 +17,8 @@ void Model::Draw(Shader& shader)
 void Model::loadModel(const char* path)
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	std::string dir(path);
+	const aiScene* scene = importer.ReadFile(dir, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
 	//check for errors
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)

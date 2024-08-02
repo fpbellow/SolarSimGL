@@ -32,7 +32,7 @@ public:
 	bool gammaCorrection;
 
 
-	Model(const char* path, std::string directory);
+	Model(const char* path);
 	
 	void Draw(Shader& shader);
 

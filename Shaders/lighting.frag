@@ -57,20 +57,6 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), FragMaterial.shineFactor);
 	vec3 specular =FragLight.specular * spec * vec3(texture(FragMaterial.specular, TexCoords));
 	
-	//emission
-	/*vec3 emission = vec3(0.0);
-	if(texture(FragMaterial.specular, TexCoords).r == 0)
-	{
-		emission = vec3(texture(FragMaterial.emission, TexCoords + vec2(0.0, u_time*0.75)));
-	}*/
-
-	//spotlight
-	float theta = dot(lightDir, normalize(-FragLight.direction));
-	float epsilon = (FragLight.cutoff - FragLight.outerCutoff);
-	float intensity = clamp((theta - FragLight.outerCutoff) / epsilon, 0.0, 1.0);
-	diffuse *= intensity;
-	specular *= intensity;
-
 
 	//attenuation
 	float distance = length(FragLight.position - FragPos);

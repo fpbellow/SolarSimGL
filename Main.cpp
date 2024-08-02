@@ -9,8 +9,10 @@
 
 #include <iostream>
 
-#include "./Headers/resource_manager.h"
-#include "./Headers/camera.h"
+#include "Headers/resource_manager.h"
+#include "Headers/camera.h"
+#include "Headers/model.h"
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -219,17 +221,15 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    ResourceManager::LoadTexture("./Assets/textures/container2.png", true, "containTex");
+    ResourceManager::LoadTexture("Assets/textures/container2.png", true, "containTex");
     Texture2D diffuseMap = ResourceManager::GetTexture("containTex");
 
-    ResourceManager::LoadTexture("./Assets/textures/container2_specular.png", true, "contain_spec_Tex");
+    ResourceManager::LoadTexture("Assets/textures/container2_specular.png", true, "contain_spec_Tex");
     Texture2D specularMap = ResourceManager::GetTexture("contain_spec_Tex");
 
-    ResourceManager::LoadTexture("./Assets/textures/matrix.jpg", false, "matrix_em");
-    Texture2D emissionMap = ResourceManager::GetTexture("matrix_em");
 
 
-
+    Model backpack("Assets/objects/backpack/backpack.obj");
 
 
     while (!glfwWindowShouldClose(window))
@@ -269,18 +269,7 @@ int main()
         lightShader.SetFloat("FragLight.linear", lcube.linear);
         lightShader.SetFloat("FragLight.quadratic", lcube.quadratic);
 
-        //spotlight properties
-        if (toggleLight)
-        {
-            lightShader.SetFloat("FragLight.cutoff", lcube.cutoff);
-            lightShader.SetFloat("FragLight.outerCutoff", lcube.outerCutoff);
-        }
-        else
-        {
-            lightShader.SetFloat("FragLight.cutoff", 1.0);
-            lightShader.SetFloat("FragLight.outerCutoff", 1.0);
-        }
-        
+
         // material properties
         lightShader.SetInt("FragMaterial.diffuse", 0);
         lightShader.SetInt("FragMaterial.specular", 1); 
@@ -307,19 +296,8 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         specularMap.Bind();
 
-
-        //render the cube
-        glBindVertexArray(cubeVAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            lightShader.SetMat4("model", model);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        backpack.Draw(lightShader);
+      
         
 
         //also draw the lamp object
