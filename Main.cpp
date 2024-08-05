@@ -100,6 +100,8 @@ int main()
         return -1;
     }
 
+    stbi_set_flip_vertically_on_load(true);
+
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     // configure global opengl state
 // -----------------------------
@@ -221,10 +223,10 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    ResourceManager::LoadTexture("Assets/textures/container2.png", true, "containTex");
+    ResourceManager::LoadTexture("Assets/textures/container2.png", "containTex");
     Texture2D diffuseMap = ResourceManager::GetTexture("containTex");
 
-    ResourceManager::LoadTexture("Assets/textures/container2_specular.png", true, "contain_spec_Tex");
+    ResourceManager::LoadTexture("Assets/textures/container2_specular.png", "contain_spec_Tex");
     Texture2D specularMap = ResourceManager::GetTexture("contain_spec_Tex");
 
 

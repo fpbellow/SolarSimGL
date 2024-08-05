@@ -28,9 +28,9 @@ Shader ResourceManager::GetShader(std::string name)
 }
 
 
-Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
+Texture2D ResourceManager::LoadTexture(const char* file, std::string name)
 {
-	Textures[name] = loadTextureFromFile(file, alpha);
+	Textures[name] = loadTextureFromFile(file);
 	return Textures[name];
 }
 
@@ -97,7 +97,7 @@ Shader ResourceManager::loadShaderFromFile(const char* vShaderFile, const char* 
 }
 
 
-Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
+Texture2D ResourceManager::loadTextureFromFile(const char* file)
 {
     Texture2D texture;
     /*if (alpha) 
