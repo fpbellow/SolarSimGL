@@ -13,16 +13,17 @@
 #define MAX_BONE_INFLUENCE 4
 
 struct Vertex {
-    // position
+    //position
     glm::vec3 Position;
-    // normal
+    //normal
     glm::vec3 Normal;
-    // texCoords
+    //texCoords
     glm::vec2 TexCoords;
-    // tangent
+    //tangent
     glm::vec3 Tangent;
-    // bitangent
+    //bitangent
     glm::vec3 Bitangent;
+
     //bone indexes which will influence this vertex
     int m_BoneIDs[MAX_BONE_INFLUENCE];
     //weights from each bone
