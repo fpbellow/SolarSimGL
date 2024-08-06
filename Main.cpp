@@ -14,7 +14,6 @@
 #include "Headers/model.h"
 
 
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos );
@@ -65,7 +64,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 glm::vec3 lightColor = glm::vec3(1.0f);
 
 bool toggleHud = false;
-bool toggleLight = false;
 
 int main()
 {
@@ -104,7 +102,6 @@ int main()
 
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     // configure global opengl state
-// -----------------------------
     glEnable(GL_DEPTH_TEST);
 
     ResourceManager::LoadShader("./Shaders/lighting.vert", "./Shaders/lighting.frag", nullptr, "lightShade");
@@ -114,62 +111,50 @@ int main()
     Shader  lCubeShader = ResourceManager::GetShader("lightCubeShade");
 
     float vertices[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+        //positions
+        -0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f,  0.5f, -0.5f,   
+         0.5f,  0.5f, -0.5f,   
+        -0.5f,  0.5f, -0.5f,    
+        -0.5f, -0.5f, -0.5f,    
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,     
+         0.5f, -0.5f,  0.5f,     
+         0.5f,  0.5f,  0.5f, 
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f,  
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f,  
+        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f,  0.5f,   
+        -0.5f,  0.5f,  0.5f, 
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f, -0.5f,  
+         0.5f, -0.5f,  0.5f,  
+         0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f,  0.5f,  
+        -0.5f, -0.5f, -0.5f,  
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f, 
+         0.5f,  0.5f, -0.5f,  
+         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f,  0.5f,  
+        -0.5f,  0.5f, -0.5f
     };
 
-    glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
-    glm::vec3(2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3(2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3(1.3f, -2.0f, -2.5f),
-    glm::vec3(1.5f,  2.0f, -2.5f),
-    glm::vec3(1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-    }; 
 
     Material objectMat;
     objectMat.shineFact = 32.0f;
@@ -186,49 +171,21 @@ int main()
     lcube.linear = 0.07f;
     lcube.quadratic = 0.017f;
 
-    lcube.cutoff = glm::cos(glm::radians(12.5));
-    lcube.outerCutoff = glm::cos(glm::radians(17.5));
-
-
     //configure cube VAO & VBO
-    unsigned int VBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindVertexArray(cubeVAO);
+    glBindVertexArray(VAO);
 
     //position attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
-    //normal attributes
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    //texture attributes
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    //lighting VAO + VBO
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    //lighting vertex attrib
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    ResourceManager::LoadTexture("Assets/textures/container2.png", "containTex");
-    Texture2D diffuseMap = ResourceManager::GetTexture("containTex");
-
-    ResourceManager::LoadTexture("Assets/textures/container2_specular.png", "contain_spec_Tex");
-    Texture2D specularMap = ResourceManager::GetTexture("contain_spec_Tex");
-
 
 
     Model backpack("Assets/objects/backpack/backpack.obj");
@@ -252,14 +209,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-
-
         lightShader.Use();
         lightShader.SetVec3f("FragLight.position", lcube.position);
         
         lightShader.SetVec3f("FragLight.direction", lcube.direction);
         lightShader.SetVec3f("viewPos", camera.Position);
-        lightShader.SetFloat("u_time", glfwGetTime());
+        lightShader.SetFloat("u_time",  glfwGetTime());
 
         
         lightShader.SetVec3f("FragLight.ambient", glm::vec3(lcube.ambient));
@@ -275,7 +230,6 @@ int main()
         // material properties
         lightShader.SetInt("FragMaterial.diffuse", 0);
         lightShader.SetInt("FragMaterial.specular", 1); 
-        /*lightShader.SetInt("FragMaterial.emission", 2);*/
         lightShader.SetFloat("FragMaterial.shineFactor", objectMat.shineFact);
 
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -289,19 +243,8 @@ int main()
         //world transform
         glm::mat4 model = glm::mat4(1.0);
         lightShader.SetMat4("model", model);
-
-        //bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        diffuseMap.Bind();
-
-        //bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        specularMap.Bind();
-
         backpack.Draw(lightShader);
       
-        
-
         //also draw the lamp object
         lCubeShader.Use();
         lCubeShader.SetVec3f("lampColor", lcube.specular + lcube.ambient);
@@ -313,7 +256,7 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f)); //scale down to a smaller cube
         lCubeShader.SetMat4("model", model);
 
-        glBindVertexArray(cubeVAO);
+        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
@@ -321,10 +264,7 @@ int main()
     }
 
 
-
-    glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightVAO);
-
+    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glfwDestroyWindow(window);
 
@@ -336,9 +276,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         toggleHud = !toggleHud;
-
-    if (key == GLFW_KEY_T && action == GLFW_PRESS)
-        toggleLight = !toggleLight;
 }
 
 void processInput(GLFWwindow* window)
@@ -356,13 +293,9 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, deltaTime);
 
-    
-
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
-    {
         camera.LockCursor = true;
-    }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_RELEASE)
         camera.LockCursor = false;
 
@@ -371,7 +304,6 @@ void processInput(GLFWwindow* window)
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
         camera.enableZoom = false;
-        
 }
 
 
@@ -409,7 +341,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {   
     if (camera.enableZoom)
     {
-
         camera.ProcessMouseScroll(static_cast<float>(yoffset));
     }
 }

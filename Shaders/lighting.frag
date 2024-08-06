@@ -20,9 +20,6 @@ struct Light
 	float constant;
 	float linear;
 	float quadratic;
-
-	float cutoff;
-	float outerCutoff;
 };
 
 in vec3 Normal;
