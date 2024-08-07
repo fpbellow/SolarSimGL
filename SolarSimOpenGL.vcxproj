@@ -160,10 +160,10 @@
     <ClInclude Include="Headers\texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\lighting.frag" />
-    <None Include="Shaders\lighting.vert" />
-    <None Include="Shaders\l_Cube.frag" />
-    <None Include="Shaders\l_Cube.vert" />
+    <None Include="Shaders\planets.frag" />
+    <None Include="Shaders\planets.vert" />
+    <None Include="Shaders\sun.frag" />
+    <None Include="Shaders\sun.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

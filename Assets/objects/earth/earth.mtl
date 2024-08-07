@@ -8,5 +8,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd EarthComposited_2k.png
-map_Bump Adjusted2k_earth_specular_map.png
+map_Kd 8k_earth_daymap.jpg
+map_Bump 8k_earth_normal_map.jpg
+map_Ks 8k_earth_specular_map.jpg

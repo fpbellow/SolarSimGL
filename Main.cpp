@@ -52,12 +52,11 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+float fcoef = 1000.0;
 
 //timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-
 
 //default colors
 glm::vec3 lightColor = glm::vec3(1.0f);
@@ -103,28 +102,28 @@ int main()
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
 
-    ResourceManager::LoadShader("./Shaders/lighting.vert", "./Shaders/lighting.frag", nullptr, "lightShade");
-    Shader lightShader = ResourceManager::GetShader("lightShade");
+    ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
+    Shader planetShader = ResourceManager::GetShader("planetShade");
 
-    ResourceManager::LoadShader("./Shaders/l_Cube.vert", "./Shaders/l_Cube.frag", nullptr, "lightCubeShade");
-    Shader  lCubeShader = ResourceManager::GetShader("lightCubeShade");
+    ResourceManager::LoadShader("Shaders/sun.vert", "Shaders/sun.frag", nullptr, "sunShade");
+    Shader sunShader = ResourceManager::GetShader("sunShade");
 
 
 
     Material objectMat;
     objectMat.shineFact = 8.0f;
 
-    Light lcube;
-    lcube.position = glm::vec3(2.0);
-    lcube.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    Light sunLight;
+    sunLight.position = glm::vec3(4.0, 2.0, 2.0);
+    sunLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
-    lcube.ambient = 0.2f;
-    lcube.diffuse = 0.5f;
-    lcube.specular = lightColor;
+    sunLight.ambient = 0.2f;
+    sunLight.diffuse = 0.5f;
+    sunLight.specular = lightColor;
 
-    lcube.constant = 1.0f;
-    lcube.linear = 0.07f;
-    lcube.quadratic = 0.017f;
+    sunLight.constant = 1.0f;
+    sunLight.linear = 0.07f;
+    sunLight.quadratic = 0.017f;
 
 
     Model earth("Assets/objects/earth/earth.obj");
@@ -150,59 +149,56 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        lightShader.Use();
-        lightShader.SetVec3f("FragLight.position", lcube.position);
+        planetShader.Use();
+        planetShader.SetVec3f("FragLight.position", sunLight.position);
         
-        lightShader.SetVec3f("FragLight.direction", lcube.direction);
-        lightShader.SetVec3f("viewPos", camera.Position);
-        lightShader.SetFloat("u_time",  glfwGetTime());
+        planetShader.SetVec3f("FragLight.direction", sunLight.direction);
+        planetShader.SetVec3f("viewPos", camera.Position);
 
 
-        lightShader.SetVec3f("FragLight.ambient", glm::vec3(lcube.ambient));
-        lightShader.SetVec3f("FragLight.diffuse", glm::vec3(lcube.diffuse));
-        lightShader.SetVec3f("FragLight.specular", lcube.specular);
+        planetShader.SetVec3f("FragLight.ambient", glm::vec3(sunLight.ambient));
+        planetShader.SetVec3f("FragLight.diffuse", glm::vec3(sunLight.diffuse));
+        planetShader.SetVec3f("FragLight.specular", sunLight.specular);
 
         //attenuation properties
-        lightShader.SetFloat("FragLight.constant", lcube.constant);
-        lightShader.SetFloat("FragLight.linear", lcube.linear);
-        lightShader.SetFloat("FragLight.quadratic", lcube.quadratic);
+        planetShader.SetFloat("FragLight.constant", sunLight.constant);
+        planetShader.SetFloat("FragLight.linear", sunLight.linear);
+        planetShader.SetFloat("FragLight.quadratic", sunLight.quadratic);
 
 
         // material properties
-        lightShader.SetInt("FragMaterial.diffuse", 0);
-        lightShader.SetInt("FragMaterial.specular", 1); 
-        lightShader.SetFloat("FragMaterial.shineFactor", objectMat.shineFact);
+        planetShader.SetInt("FragMaterial.diffuse", 0);
+        planetShader.SetInt("FragMaterial.specular", 1); 
+        planetShader.SetFloat("FragMaterial.shineFactor", objectMat.shineFact);
 
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, fcoef);
 
         glm::mat4 view = camera.GetViewMatrix();
         
-        lightShader.SetMat4("projection", projection);
-        lightShader.SetMat4("view", view);
+        planetShader.SetMat4("projection", projection);
+        planetShader.SetMat4("view", view);
         
-
-        //world transform
+        //earth
         glm::mat4 model = glm::mat4(1.0);
-        lightShader.SetMat4("model", model);
-        earth.Draw(lightShader);
+        planetShader.SetMat4("model", model);
+        earth.Draw(planetShader);
 
+        //venus
         model = glm::mat4(1.0);
         model = glm::translate(model, glm::vec3(1.0, 0.0, 0.0));
-        lightShader.SetMat4("model", model);
-        venus.Draw(lightShader);
+        planetShader.SetMat4("model", model);
+        venus.Draw(planetShader);
 
-      
-        //also draw the lamp object
-        lCubeShader.Use();
-        lCubeShader.SetVec3f("lampColor", lcube.specular + lcube.ambient);
-        lCubeShader.SetMat4("projection", projection);
-        lCubeShader.SetMat4("view", view);
+        //sun
+        sunShader.Use();
+        sunShader.SetMat4("projection", projection);
+        sunShader.SetMat4("view", view);
 
         model = glm::mat4(1.0);
-        model = glm::translate(model, lcube.position);
-        model = glm::scale(model, glm::vec3(0.2f)); //scale down to a smaller cube
-        lCubeShader.SetMat4("model", model);
-        sun.Draw(lCubeShader);
+        model = glm::translate(model, sunLight.position);
+        model = glm::scale(model, glm::vec3(0.05f)); 
+        sunShader.SetMat4("model", model);
+        sun.Draw(sunShader);
 
 
         glfwSwapBuffers(window);
