@@ -11,7 +11,7 @@ void Model::Draw(Shader& shader)
         meshes[i].Draw(shader);
 }
 
-// loads a model ASSIMP extensions from file and stores resulting meshes
+//loads a model from file and stores resulting meshes
 void Model::loadModel(std::string const& path)
 {
 
@@ -26,7 +26,7 @@ void Model::loadModel(std::string const& path)
 
     directory = path.substr(0, path.find_last_of('/'));
 
-    // process ASSIMP's root node recursively
+    //process ASSIMP's root node recursively
     processNode(scene->mRootNode, scene);
 }
 
@@ -34,13 +34,11 @@ void Model::loadModel(std::string const& path)
 //Processes each individual mesh located at the node and repeats recursively on any children.
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
-    // process meshes located at the current node
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(processMesh(mesh, scene));
     }
-    //recursively process child nodes
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene);

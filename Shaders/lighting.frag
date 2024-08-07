@@ -3,14 +3,12 @@ struct Material
 {
 	sampler2D diffuse;
 	sampler2D specular;
-	//sampler2D emission;
 	float shineFactor;
 };
 
 struct Light 
 {
 	vec3 position;
-
 	vec3 direction;
 
 	vec3 ambient;
@@ -29,7 +27,6 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform vec3 viewPos;
-uniform float u_time;
 
 uniform Material FragMaterial;
 uniform Light FragLight;

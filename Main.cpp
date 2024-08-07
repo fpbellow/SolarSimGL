@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+
 #include <iostream>
 
 #include "Headers/resource_manager.h"
@@ -16,7 +17,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos );
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 void processInput(GLFWwindow* window);
@@ -56,8 +57,6 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-//lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 
 //default colors
@@ -110,57 +109,13 @@ int main()
     ResourceManager::LoadShader("./Shaders/l_Cube.vert", "./Shaders/l_Cube.frag", nullptr, "lightCubeShade");
     Shader  lCubeShader = ResourceManager::GetShader("lightCubeShade");
 
-    float vertices[] = {
-        //positions
-        -0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,   
-         0.5f,  0.5f, -0.5f,   
-        -0.5f,  0.5f, -0.5f,    
-        -0.5f, -0.5f, -0.5f,    
-
-        -0.5f, -0.5f,  0.5f,     
-         0.5f, -0.5f,  0.5f,     
-         0.5f,  0.5f,  0.5f, 
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f,  
-
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f, -0.5f,  
-        -0.5f, -0.5f, -0.5f,  
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f,  0.5f,   
-        -0.5f,  0.5f,  0.5f, 
-
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-
-        -0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f, -0.5f,  
-
-        -0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f, -0.5f
-    };
 
 
     Material objectMat;
-    objectMat.shineFact = 32.0f;
+    objectMat.shineFact = 8.0f;
 
     Light lcube;
-    lcube.position = lightPos;
+    lcube.position = glm::vec3(2.0);
     lcube.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
     lcube.ambient = 0.2f;
@@ -171,24 +126,10 @@ int main()
     lcube.linear = 0.07f;
     lcube.quadratic = 0.017f;
 
-    //configure cube VAO & VBO
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(VAO);
-
-    //position attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-
-    Model backpack("Assets/objects/backpack/backpack.obj");
+    Model earth("Assets/objects/earth/earth.obj");
+    Model venus("Assets/objects/venus/venus.obj");
+    Model sun("Assets/objects/sun/sun.obj");
 
 
     while (!glfwWindowShouldClose(window))
@@ -216,7 +157,7 @@ int main()
         lightShader.SetVec3f("viewPos", camera.Position);
         lightShader.SetFloat("u_time",  glfwGetTime());
 
-        
+
         lightShader.SetVec3f("FragLight.ambient", glm::vec3(lcube.ambient));
         lightShader.SetVec3f("FragLight.diffuse", glm::vec3(lcube.diffuse));
         lightShader.SetVec3f("FragLight.specular", lcube.specular);
@@ -243,7 +184,13 @@ int main()
         //world transform
         glm::mat4 model = glm::mat4(1.0);
         lightShader.SetMat4("model", model);
-        backpack.Draw(lightShader);
+        earth.Draw(lightShader);
+
+        model = glm::mat4(1.0);
+        model = glm::translate(model, glm::vec3(1.0, 0.0, 0.0));
+        lightShader.SetMat4("model", model);
+        venus.Draw(lightShader);
+
       
         //also draw the lamp object
         lCubeShader.Use();
@@ -255,17 +202,12 @@ int main()
         model = glm::translate(model, lcube.position);
         model = glm::scale(model, glm::vec3(0.2f)); //scale down to a smaller cube
         lCubeShader.SetMat4("model", model);
+        sun.Draw(lCubeShader);
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
     glfwDestroyWindow(window);
 
     glfwTerminate();
