@@ -109,15 +109,19 @@ int main()
     Shader sunShader = ResourceManager::GetShader("sunShade");
 
 
+    //earth additional textures
+    ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_clouds.jpg", "EarthClouds");
+    Texture2D earthClouds = ResourceManager::GetTexture("EarthClouds");
+
 
     Material objectMat;
     objectMat.shineFact = 8.0f;
 
     Light sunLight;
-    sunLight.position = glm::vec3(4.0, 2.0, 2.0);
+    sunLight.position = glm::vec3(40.0, 2.0, 2.0);
     sunLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
-    sunLight.ambient = 0.2f;
+    sunLight.ambient = 0.1f;
     sunLight.diffuse = 0.5f;
     sunLight.specular = lightColor;
 
@@ -150,26 +154,26 @@ int main()
 
 
         planetShader.Use();
-        planetShader.SetVec3f("FragLight.position", sunLight.position);
+        planetShader.SetVec3f("SunLight.position", sunLight.position);
         
-        planetShader.SetVec3f("FragLight.direction", sunLight.direction);
+        planetShader.SetVec3f("SunLight.direction", sunLight.direction);
         planetShader.SetVec3f("viewPos", camera.Position);
 
 
-        planetShader.SetVec3f("FragLight.ambient", glm::vec3(sunLight.ambient));
-        planetShader.SetVec3f("FragLight.diffuse", glm::vec3(sunLight.diffuse));
-        planetShader.SetVec3f("FragLight.specular", sunLight.specular);
+        planetShader.SetVec3f("SunLight.ambient", glm::vec3(sunLight.ambient));
+        planetShader.SetVec3f("SunLight.diffuse", glm::vec3(sunLight.diffuse));
+        planetShader.SetVec3f("SunLight.specular", sunLight.specular);
 
         //attenuation properties
-        planetShader.SetFloat("FragLight.constant", sunLight.constant);
-        planetShader.SetFloat("FragLight.linear", sunLight.linear);
-        planetShader.SetFloat("FragLight.quadratic", sunLight.quadratic);
+        planetShader.SetFloat("SunLight.constant", sunLight.constant);
+        planetShader.SetFloat("SunLight.linear", sunLight.linear);
+        planetShader.SetFloat("SunLight.quadratic", sunLight.quadratic);
 
 
         // material properties
-        planetShader.SetInt("FragMaterial.diffuse", 0);
-        planetShader.SetInt("FragMaterial.specular", 1); 
-        planetShader.SetFloat("FragMaterial.shineFactor", objectMat.shineFact);
+        planetShader.SetInt("PlanetMtl.diffuse", 0);
+        planetShader.SetInt("PlanetMtl.specular", 1); 
+        planetShader.SetFloat("PlanetMtl.shineFactor", objectMat.shineFact);
 
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, fcoef);
 
@@ -181,7 +185,13 @@ int main()
         //earth
         glm::mat4 model = glm::mat4(1.0);
         planetShader.SetMat4("model", model);
+        planetShader.SetBool("PlanetMtl.earth", true);
+        planetShader.SetInt("PlanetMtl.textureLayer1", 5);
+
+        glActiveTexture(GL_TEXTURE5);
+        earthClouds.Bind();
         earth.Draw(planetShader);
+        planetShader.SetBool("PlanetMtl.earth", false);
 
         //venus
         model = glm::mat4(1.0);
@@ -196,7 +206,7 @@ int main()
 
         model = glm::mat4(1.0);
         model = glm::translate(model, sunLight.position);
-        model = glm::scale(model, glm::vec3(0.05f)); 
+        model = glm::scale(model, glm::vec3(0.25f)); 
         sunShader.SetMat4("model", model);
         sun.Draw(sunShader);
 
