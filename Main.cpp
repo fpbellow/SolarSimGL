@@ -110,12 +110,16 @@ int main()
 
 
     //earth additional textures
+    ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_nightmap.jpg", "EarthNight");
+    Texture2D earthNight = ResourceManager::GetTexture("EarthNight");
+
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_clouds.jpg", "EarthClouds");
     Texture2D earthClouds = ResourceManager::GetTexture("EarthClouds");
 
+    
 
     Material objectMat;
-    objectMat.shineFact = 8.0f;
+    objectMat.shineFact = 64.0f;
 
     Light sunLight;
     sunLight.position = glm::vec3(40.0, 2.0, 2.0);
@@ -126,8 +130,8 @@ int main()
     sunLight.specular = lightColor;
 
     sunLight.constant = 1.0f;
-    sunLight.linear = 0.07f;
-    sunLight.quadratic = 0.017f;
+    sunLight.linear = 0.007f;
+    sunLight.quadratic = 0.0002f;
 
 
     Model earth("Assets/objects/earth/earth.obj");
@@ -184,12 +188,21 @@ int main()
         
         //earth
         glm::mat4 model = glm::mat4(1.0);
+  
+        model = glm::rotate(model, static_cast<float>(glfwGetTime()) * glm::radians(20.0f), glm::vec3(0.0, 1.0, 0.0));
         planetShader.SetMat4("model", model);
         planetShader.SetBool("PlanetMtl.earth", true);
-        planetShader.SetInt("PlanetMtl.textureLayer1", 5);
 
-        glActiveTexture(GL_TEXTURE5);
+        //earth additional textures
+        planetShader.SetInt("PlanetMtl.textureLayer1", 6);
+        glActiveTexture(GL_TEXTURE6);
+        earthNight.Bind();
+
+
+        planetShader.SetInt("PlanetMtl.textureLayer2", 7);
+        glActiveTexture(GL_TEXTURE7);
         earthClouds.Bind();
+
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
 

@@ -52,8 +52,13 @@ void main()
 
 	if(PlanetMtl.earth)
 	{
+		//nightmap
+		float aCoef = max(dot(-lightDir, norm), 0.0);
+		diffuse += SunLight.diffuse * aCoef * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
+
+		//cloud layer
 		float diffTwo = max(diff, 0.33);
-		vec3 atmosphere = SunLight.diffuse * diffTwo * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
+		vec3 atmosphere = SunLight.diffuse * diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
 		diffuse += atmosphere;
 	}
 
