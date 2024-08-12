@@ -2,8 +2,8 @@
 #define RESOURCE_MANAGER_H
 
 #include <glad/glad.h>
-#include "../Headers/texture.h"
-#include "../Headers/shader.h"
+#include "texture.h"
+#include "shader.h"
 
 #include <map>
 #include <string>

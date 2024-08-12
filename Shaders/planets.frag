@@ -46,19 +46,18 @@ void main()
 	vec3 norm = normalize(Normal);
 	vec3 lightDir = normalize(SunLight.position - FragPos);
 	
+
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = SunLight.diffuse * diff * vec3(texture(PlanetMtl.diffuse, TexCoords));
-
 
 	if(PlanetMtl.earth)
 	{
 		//nightmap
-		float aCoef = max(dot(-lightDir, norm-0.5), 0.0);
-		diffuse += SunLight.diffuse * aCoef * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
+		diffuse += vec3(mix(vec4(0.0), texture(PlanetMtl.textureLayer1, TexCoords), SunLight.diffuse.x * (1.0-diff)));
 
 		//cloud layer
-		float diffTwo = max(diff, 0.125);
-		vec3 atmosphere = 0.75 * diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
+		float diffTwo = max(diff, 0.3);
+		vec3 atmosphere = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
 		diffuse += atmosphere;
 	}
 
@@ -69,8 +68,6 @@ void main()
 	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), PlanetMtl.shineFactor);
 	//vec3 specular =SunLight.specular * spec * vec3(texture(PlanetMtl.specular, TexCoords));
 
-	
-	
 
 	//attenuation
 	float distance = length(SunLight.position - FragPos);
@@ -80,6 +77,5 @@ void main()
 
 	//phong lighting combination
 	vec3 result = ambient + diffuse;
-
 	FragColor = vec4(result, 1.0);
 }

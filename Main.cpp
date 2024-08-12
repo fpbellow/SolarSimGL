@@ -6,13 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-
 #include <iostream>
 
 #include "Headers/resource_manager.h"
 #include "Headers/camera.h"
 #include "Headers/model.h"
+#include "Headers/planets_config.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -23,25 +22,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-struct Material {
-    float shineFact;
-};
-
-struct Light {
-    glm::vec3 position;
-    glm::vec3 direction;
-
-    float ambient;
-    float diffuse;
-    glm::vec3 specular;
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    float cutoff;
-    float outerCutoff;
-};
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
@@ -108,14 +88,14 @@ int main()
 
     ResourceManager::LoadShader("Shaders/sun.vert", "Shaders/sun.frag", nullptr, "sunShade");
     Shader sunShader = ResourceManager::GetShader("sunShade");
-
+    
     //earth additional textures
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_nightmap.jpg", "EarthNight");
     Texture2D earthNight = ResourceManager::GetTexture("EarthNight");
 
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_clouds.jpg", "EarthClouds");
     Texture2D earthClouds = ResourceManager::GetTexture("EarthClouds");
-    
+
 
     Material objectMat;
     objectMat.shineFact = 32.0f;
@@ -155,59 +135,37 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        planetShader.Use();
-        planetShader.SetVec3f("SunLight.position", sunLight.position);
-        
-        planetShader.SetVec3f("SunLight.direction", sunLight.direction);
-        planetShader.SetVec3f("viewPos", camera.Position);
-
-
-        planetShader.SetVec3f("SunLight.diffuse", glm::vec3(sunLight.diffuse));
-        planetShader.SetVec3f("SunLight.specular", sunLight.specular);
-
-        //attenuation properties
-        planetShader.SetFloat("SunLight.constant", sunLight.constant);
-        planetShader.SetFloat("SunLight.linear", sunLight.linear);
-        planetShader.SetFloat("SunLight.quadratic", sunLight.quadratic);
-
-
-        // material properties
-        planetShader.SetInt("PlanetMtl.diffuse", 0);
-        planetShader.SetInt("PlanetMtl.specular", 1); 
-        planetShader.SetFloat("PlanetMtl.shineFactor", objectMat.shineFact);
-
+        //vertex matrices
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, fcoef);
-
         glm::mat4 view = camera.GetViewMatrix();
-        
+        glm::mat4 model = glm::mat4(1.0);
+
+
+        //shader setup
+        planetShader.Use();
+
         planetShader.SetMat4("projection", projection);
         planetShader.SetMat4("view", view);
-        glm::mat4 model = glm::mat4(1.0);
-        
+
+        planetShader.SetVec3f("viewPos", camera.Position);
+
+        //lighting properties
+        PlanetsConfig::LightingConfig(planetShader, sunLight);
+
+        // material properties
+        PlanetsConfig::MaterialConfig(planetShader, objectMat);
+   
+   
         //earth
-        model = glm::mat4(1.0);
-        model = glm::rotate(model, glm::mod(static_cast<float>(glfwGetTime()), 36.0f) * glm::radians(10.0f), glm::vec3(0.0, 1.0, 0.0));
-        planetShader.SetMat4("model", model);
         planetShader.SetBool("PlanetMtl.earth", true);
-
-        //earth additional textures
-        planetShader.SetInt("PlanetMtl.textureLayer1", 6);
-        glActiveTexture(GL_TEXTURE6);
-        earthNight.Bind();
-
-
-        planetShader.SetInt("PlanetMtl.textureLayer2", 7);
-        glActiveTexture(GL_TEXTURE7);
-        earthClouds.Bind();
+        PlanetsConfig::EarthConfig(planetShader, glm::vec3(0.0), glm::vec3(1.0), earthNight, earthClouds);
 
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
+        planetShader.SetVec3f("SunLight.ambient", glm::vec3(sunLight.ambient));
 
         //venus
-        model = glm::mat4(1.0);
-        model = glm::translate(model, glm::vec3(1.0, 0.0, 0.0));
-        planetShader.SetMat4("model", model);
-        planetShader.SetVec3f("SunLight.ambient", glm::vec3(sunLight.ambient));
+        PlanetsConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));
         venus.Draw(planetShader);
 
         //sun
@@ -215,16 +173,14 @@ int main()
         sunShader.SetMat4("projection", projection);
         sunShader.SetMat4("view", view);
 
-        model = glm::mat4(1.0);
-        model = glm::translate(model, sunLight.position);
-        model = glm::scale(model, glm::vec3(0.25f)); 
-        sunShader.SetMat4("model", model);
+        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.25));
         sun.Draw(sunShader);
 
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    ResourceManager::Clear();
     glfwDestroyWindow(window);
 
     glfwTerminate();

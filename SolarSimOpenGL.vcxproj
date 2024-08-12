@@ -146,6 +146,7 @@
     <ClCompile Include="Sources\Camera.cpp" />
     <ClCompile Include="Sources\Mesh.cpp" />
     <ClCompile Include="Sources\Model.cpp" />
+    <ClCompile Include="Sources\Planets_Config.cpp" />
     <ClCompile Include="Sources\Resource_Manager.cpp" />
     <ClCompile Include="Sources\Shader.cpp" />
     <ClCompile Include="Sources\Texture.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Headers\camera.h" />
     <ClInclude Include="Headers\mesh.h" />
     <ClInclude Include="Headers\model.h" />
+    <ClInclude Include="Headers\planets_config.h" />
     <ClInclude Include="Headers\resource_manager.h" />
     <ClInclude Include="Headers\shader.h" />
     <ClInclude Include="Headers\stb_image.h" />
