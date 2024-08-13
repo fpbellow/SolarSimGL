@@ -2,7 +2,6 @@
 
 in vec3 Normal;
 in vec3 FragPos;
-in vec2 TexCoords;
 
 out vec4 FragColor;
 
@@ -12,5 +11,15 @@ vec3 color = vec3(0.4, 0.2, 0.9);
 
 void main() 
 {
-	FragColor = vec4(color, 0.2);
+	float distanceToCenter = length(gl_FragCoord.xyz - vec3(0.0));
+	if(distanceToCenter < 1.0)
+	{
+		FragColor = vec4(color, 0.2);
+	}
+	else 
+	{
+		FragColor = vec4(0.0);
+	}
+
+	
 }

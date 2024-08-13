@@ -178,6 +178,10 @@ int main()
         atmoShader.SetMat4("projection", projection);
         atmoShader.SetMat4("view", view);
         PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0), glm::vec3(1.0));
+        atmoShader.SetVec3f("SunLight.position", sunLight.position);
+        atmoShader.SetVec3f("SunLight.direction", sunLight.direction);
+        atmoShader.SetVec3f("planetPos", glm::vec3(0.0));
+        atmoShader.SetVec3f("viewPos", camera.Position);
         PlanetsConfig::DrawAtmosphere(atmoShader, atmoVAO);
 
 
