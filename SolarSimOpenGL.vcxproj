@@ -162,6 +162,8 @@
     <ClInclude Include="Headers\texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\atmosphere.frag" />
+    <None Include="Shaders\atmosphere.vert" />
     <None Include="Shaders\planets.frag" />
     <None Include="Shaders\planets.vert" />
     <None Include="Shaders\sun.frag" />

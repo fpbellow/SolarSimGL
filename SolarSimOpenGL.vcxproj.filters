@@ -85,5 +85,11 @@
     <None Include="Shaders\planets.vert">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="Shaders\atmosphere.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\atmosphere.vert">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

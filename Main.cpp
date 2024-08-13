@@ -81,6 +81,9 @@ int main()
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+    
 
     //shader programs
     ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
@@ -89,6 +92,11 @@ int main()
     ResourceManager::LoadShader("Shaders/sun.vert", "Shaders/sun.frag", nullptr, "sunShade");
     Shader sunShader = ResourceManager::GetShader("sunShade");
     
+
+    ResourceManager::LoadShader("Shaders/atmosphere.vert", "Shaders/atmosphere.frag", nullptr, "atmoShade");
+    Shader atmoShader = ResourceManager::GetShader("atmoShade");
+
+
     //earth additional textures
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_nightmap.jpg", "EarthNight");
     Texture2D earthNight = ResourceManager::GetTexture("EarthNight");
@@ -117,6 +125,7 @@ int main()
     Model venus("Assets/objects/venus/venus.obj");
     Model sun("Assets/objects/sun/sun.obj");
 
+    unsigned int atmoVAO = PlanetsConfig::AtmosphereInitialize();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -163,6 +172,14 @@ int main()
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
         planetShader.SetVec3f("SunLight.ambient", glm::vec3(sunLight.ambient));
+
+        //atmosphere
+        atmoShader.Use();
+        atmoShader.SetMat4("projection", projection);
+        atmoShader.SetMat4("view", view);
+        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0), glm::vec3(1.0));
+        PlanetsConfig::DrawAtmosphere(atmoShader, atmoVAO);
+
 
         //venus
         PlanetsConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));

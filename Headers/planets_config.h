@@ -41,6 +41,9 @@ public:
     void static EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scale, Texture2D nightMap, Texture2D cloudMap);
     void static PlanetConfig(Shader shader, glm::vec3 position, glm::vec3 scale);
 
+    unsigned int static AtmosphereInitialize();
+    void static DrawAtmosphere(Shader shader, unsigned int vao);
+
 private:
     PlanetsConfig() {}
 };
