@@ -196,7 +196,7 @@ int main()
         sunShader.SetMat4("projection", projection);
         sunShader.SetMat4("view", view);
 
-        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.25));
+        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025));
         sun.Draw(sunShader);
 
 

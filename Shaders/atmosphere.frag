@@ -39,7 +39,7 @@ uniform Light SunLight;
 
 float lightIntensity = 0.7;
 float surfaceRadius = 0.4501;
-float atmoRadius = 0.475;
+float atmoRadius = 0.4725;
 
 // math const
 const float PI = 3.14159265359;
