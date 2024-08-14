@@ -125,7 +125,6 @@ int main()
     Model venus("Assets/objects/venus/venus.obj");
     Model sun("Assets/objects/sun/sun.obj");
 
-    unsigned int atmoVAO = PlanetsConfig::AtmosphereInitialize();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -171,23 +170,26 @@ int main()
 
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
-        planetShader.SetVec3f("SunLight.ambient", glm::vec3(sunLight.ambient));
 
         //atmosphere
         atmoShader.Use();
         atmoShader.SetMat4("projection", projection);
         atmoShader.SetMat4("view", view);
-        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0), glm::vec3(1.0));
-        atmoShader.SetVec3f("SunLight.position", sunLight.position);
-        atmoShader.SetVec3f("SunLight.direction", sunLight.direction);
-        atmoShader.SetVec3f("planetPos", glm::vec3(0.0));
+
+        PlanetsConfig::LightingConfig(atmoShader, sunLight);
+        PlanetsConfig::MaterialConfig(atmoShader, objectMat);
+        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0), glm::vec3(1.01));
         atmoShader.SetVec3f("viewPos", camera.Position);
-        PlanetsConfig::DrawAtmosphere(atmoShader, atmoVAO);
 
 
-        //venus
-        PlanetsConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));
-        venus.Draw(planetShader);
+        glEnable(GL_BLEND);
+        earth.Draw(atmoShader);
+        glDisable(GL_BLEND);
+
+
+        ////venus
+        //PlanetsConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));
+        //venus.Draw(planetShader);
 
         //sun
         sunShader.Use();

@@ -47,18 +47,21 @@ void main()
 	vec3 lightDir = normalize(SunLight.position - FragPos);
 	
 
-	float diff = max(dot(norm, lightDir), 0.0);
+	float diff = max(dot(lightDir, norm), 0.0);
 	vec3 diffuse = SunLight.diffuse * diff * vec3(texture(PlanetMtl.diffuse, TexCoords));
 
 	if(PlanetMtl.earth)
 	{
 		//nightmap
-		diffuse += vec3(mix(vec4(0.0), texture(PlanetMtl.textureLayer1, TexCoords), SunLight.diffuse.x * (1.0-diff)));
+		float aCoef = max(dot(-lightDir, norm-0.5), 0.0);
+		//vec3 nightMap = vec3(mix(vec4(0.0),  texture(PlanetMtl.textureLayer1, TexCoords), (1.0 - diff)));
+		vec3 nightMap = aCoef * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
+		diffuse += (1.0 - diff) < 0.7 ? vec3(0.0) : nightMap;
 
 		//cloud layer
-		float diffTwo = max(diff, 0.3);
-		vec3 atmosphere = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
-		diffuse += atmosphere;
+		//float diffTwo = max(diff, 0.3);
+		//vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
+		//diffuse += cloudMap;
 	}
 
 	//specular lighting
