@@ -31,7 +31,7 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform vec3 viewPos;
-
+uniform float u_time;
 
 uniform Material PlanetMtl;
 uniform Light SunLight;
@@ -55,11 +55,12 @@ void main()
 	{
 		//nightmap
 		float aCoef = max(dot(-lightDir, norm-0.5), 0.0);
-		vec3 nightMap = aCoef * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
+		vec3 nightMap = SunLight.diffuse* aCoef * vec3(texture(PlanetMtl.textureLayer1, TexCoords));
 		diffuse += (1.0 - diff) < 0.7 ? vec3(0.0) : nightMap;
 
 		//cloud layer
 		float diffTwo = max(diff, 0.15);
+		//vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords + vec2(-u_time * 0.01,0.0)));
 		vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
 		diffuse += cloudMap;
 	}

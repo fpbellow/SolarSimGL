@@ -45,6 +45,9 @@
     <ClCompile Include="Sources\Planets_Config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\stb_image.h">
@@ -71,6 +74,9 @@
     <ClInclude Include="Headers\planets_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\sun.frag">
@@ -89,6 +95,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="Shaders\atmosphere.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\skybox.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="Shaders\skybox.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

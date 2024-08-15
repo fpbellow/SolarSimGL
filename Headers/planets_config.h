@@ -7,15 +7,18 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "cubemap.h"
 
 #include <string>
 
 
-struct Material{
+struct Material
+{
     float shineFact;
 };
 
-struct Light {
+struct Light 
+{
     glm::vec3 position;
     glm::vec3 direction;
 
@@ -31,15 +34,27 @@ struct Light {
     float outerCutoff;
 };
 
+struct Galaxy 
+{
+    std::vector<std::string> faces;
+    Cubemap skybox;
+    unsigned int vao;
+};
+
 class PlanetsConfig
 {
 public:
+    //shader config
     void static LightingConfig(Shader shader, Light light);
     void static MaterialConfig(Shader shader, Material mtl);
 
     //planets
-    void static EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scale, Texture2D nightMap, Texture2D cloudMap);
+    void static EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scale, Texture2D nightMap, Texture2D cloudMap, float time);
     void static PlanetConfig(Shader shader, glm::vec3 position, glm::vec3 scale);
+
+    //galaxy config
+    Galaxy static GalaxyConfig(Shader shader);
+    void static GalaxyDraw(unsigned int galaxyVao, Cubemap skybox);
 
 private:
     PlanetsConfig() {}

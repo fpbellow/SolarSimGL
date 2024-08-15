@@ -94,11 +94,18 @@ int main()
 
     ResourceManager::LoadShader("Shaders/sun.vert", "Shaders/sun.frag", nullptr, "sunShade");
     Shader sunShader = ResourceManager::GetShader("sunShade");
-    
 
     ResourceManager::LoadShader("Shaders/atmosphere.vert", "Shaders/atmosphere.frag", nullptr, "atmoShade");
     Shader atmoShader = ResourceManager::GetShader("atmoShade");
 
+    ResourceManager::LoadShader("Shaders/skybox.vert", "Shaders/skybox.frag", nullptr, "galaxyShade");
+    Shader galaxyShader = ResourceManager::GetShader("galaxyShade");
+
+    //skybox configuration and texture
+    Galaxy galaxy = PlanetsConfig::GalaxyConfig(galaxyShader);
+
+    ResourceManager::LoadCubemap(galaxy.faces, "skybox");
+    galaxy.skybox = ResourceManager::GetCubemap("skybox");
 
     //earth additional textures
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_nightmap.jpg", "EarthNight");
@@ -125,9 +132,7 @@ int main()
 
 
     Model earth("Assets/objects/earth/earth.obj");
-    Model venus("Assets/objects/venus/venus.obj");
     Model sun("Assets/objects/sun/sun.obj");
-
 
     while (!glfwWindowShouldClose(window))
     {
@@ -169,7 +174,8 @@ int main()
    
         //earth
         planetShader.SetBool("PlanetMtl.earth", true);
-        PlanetsConfig::EarthConfig(planetShader, glm::vec3(0.0), glm::vec3(1.0), earthNight, earthClouds);
+        planetShader.SetFloat("u_time", static_cast<float>(glfwGetTime()));
+        PlanetsConfig::EarthConfig(planetShader, glm::vec3(0.0), glm::vec3(1.0), earthNight, earthClouds, static_cast<float>(glfwGetTime()));
 
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
@@ -202,10 +208,19 @@ int main()
         PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025));
         sun.Draw(sunShader);
 
+        //draw skybox last
+        glDepthFunc(GL_LEQUAL);
+        galaxyShader.Use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        galaxyShader.SetMat4("view", view);
+        galaxyShader.SetMat4("projection", projection);
+        PlanetsConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
+        glDepthFunc(GL_LESS);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    glDeleteVertexArrays(1, &galaxy.vao);
     ResourceManager::Clear();
     glfwDestroyWindow(window);
 

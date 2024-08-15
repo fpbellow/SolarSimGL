@@ -11,6 +11,7 @@
 //instatiate static variables
 std::map<std::string, Texture2D> ResourceManager::Textures;
 std::map<std::string, Shader> ResourceManager::Shaders;
+std::map<std::string, Cubemap> ResourceManager::Cubemaps;
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -39,6 +40,19 @@ Texture2D ResourceManager::GetTexture(std::string name)
 }
 
 
+Cubemap ResourceManager::LoadCubemap(std::vector<std::string> faces, std::string name)
+{
+    Cubemaps[name] = loadCubemapFromFileVector(faces);
+    return Cubemaps[name];
+}
+
+
+Cubemap ResourceManager::GetCubemap(std::string name)
+{
+    return Cubemaps[name];
+}
+
+
 void ResourceManager::Clear()
 {
 	//delete all shaders
@@ -47,6 +61,9 @@ void ResourceManager::Clear()
 	
 	for (auto iterator : Textures)
 		glDeleteTextures(1, &iterator.second.id);
+
+    for (auto iterator : Cubemaps)
+        glDeleteTextures(1, &iterator.second.id);
 }
 
 Shader ResourceManager::loadShaderFromFile(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile)
@@ -98,17 +115,11 @@ Shader ResourceManager::loadShaderFromFile(const char* vShaderFile, const char* 
 Texture2D ResourceManager::loadTextureFromFile(const char* file)
 {
     Texture2D texture;
-    /*if (alpha) 
-    {
-        texture.Internal_Format = GL_RGBA;
-        texture.Image_Format = GL_RGBA;
-    }*/
 
     int width, height, nrChannels;
     unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
     if (data)
     {
-        
         if (nrChannels == 1)
         {
             texture.Internal_Format = GL_RED;
@@ -124,10 +135,44 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file)
             texture.Internal_Format = GL_RGBA;
             texture.Image_Format = GL_RGBA;
         }
+        texture.Generate(width, height, data);
     }
-
-    texture.Generate(width, height, data);
+    else
+        std::cout << "Texture failed to load at path: " << file << std::endl;
+    
     stbi_image_free(data);
 
     return texture;
+}
+
+Cubemap ResourceManager::loadCubemapFromFileVector(std::vector<std::string> faces)
+{
+    Cubemap cubemap;
+    glGenTextures(1, &cubemap.id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap.id);
+    int width, height, nrChannels;
+
+    for (unsigned int i = 0; i < faces.size(); i++)
+    {
+       unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+
+    return cubemap;
 }

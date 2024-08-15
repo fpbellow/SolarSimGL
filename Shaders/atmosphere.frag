@@ -3,13 +3,7 @@
 
 struct Material 
 {
-	sampler2D diffuse;
-	sampler2D specular;
 	float shineFactor;
-
-	bool earth;
-	sampler2D textureLayer1;
-	sampler2D textureLayer2;
 };
 
 struct Light 
@@ -38,8 +32,8 @@ uniform Light SunLight;
 
 
 float lightIntensity = 0.7;
-float surfaceRadius = 0.4501;
-float atmoRadius = 0.4725;
+float surfaceRadius = 0.4505;
+float atmoRadius = 0.475;
 
 // math const
 const float PI = 3.14159265359;
@@ -96,7 +90,7 @@ float mie_phase(float g, float c, float cc)
 
 float density(vec3 p, float ph)
 {
-	return exp(-max(length(p) - surfaceRadius, 0.0)/ ph);
+	return exp(-max(length(p) - surfaceRadius, 0.0)/ ph) * 1.125;
 }
 
 float optic(vec3 p, vec3 q, float ph)
@@ -117,9 +111,9 @@ float optic(vec3 p, vec3 q, float ph)
 
 vec4 in_scatter(vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity)
 {
-	const float ph_ray = 0.15;
-    const float ph_mie = 0.05;
-	const float ph_alpha = 0.25;
+	const float ph_ray = 0.2;
+    const float ph_mie = 0.1;
+	const float ph_alpha = 0.3;
 
     const vec3 k_ray = vec3(3.8, 13.5, 33.1);
     const vec3 k_mie = vec3(21.0);
