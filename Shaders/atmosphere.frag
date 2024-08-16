@@ -33,7 +33,7 @@ uniform Light SunLight;
 
 float lightIntensity = 0.7;
 float surfaceRadius = 0.4505;
-float atmoRadius = 0.475;
+float atmoRadius = 0.4825;
 
 // math const
 const float PI = 3.14159265359;
@@ -90,7 +90,8 @@ float mie_phase(float g, float c, float cc)
 
 float density(vec3 p, float ph)
 {
-	return exp(-max(length(p) - surfaceRadius, 0.0)/ ph) * 1.125;
+	float altitude = length(p) - surfaceRadius;
+	return exp(-max(altitude, 0.0)/ ph);
 }
 
 float optic(vec3 p, vec3 q, float ph)
@@ -180,7 +181,7 @@ void main()
 		vec2 f = ray_sphere_intersect(FragPos.xyz, viewDir, surfaceRadius);
 		e.y = min(e.y, f.x);
 		
-		vec4 I = in_scatter(FragPos.xyz, viewDir, e, -lightDir, attenuation);
+		vec4 I = in_scatter(FragPos.xyz, viewDir, e, -lightDir, attenuation );
 		vec4 I_gamma = pow(I, vec4(1.0/ 2.2));
 		FragColor = I_gamma;
 }

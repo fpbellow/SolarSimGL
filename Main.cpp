@@ -119,7 +119,7 @@ int main()
     objectMat.shineFact = 32.0f;
 
     Light sunLight;
-    sunLight.position = glm::vec3(40.0, 2.0, 2.0);
+    sunLight.position = glm::vec3(100.0, 2.0, 2.0);
     sunLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
 
     sunLight.ambient = 0.025f;
