@@ -98,6 +98,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+#Reinclude planet obj files
+!Assets/objects/**/*.obj
+
 # Chutzpah Test files
 _Chutzpah*
 
