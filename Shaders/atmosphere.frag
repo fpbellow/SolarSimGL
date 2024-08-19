@@ -170,7 +170,7 @@ void main()
 		vec3 norm = normalize(Normal);
 		vec3 lightDir = normalize(SunLight.position - FragPos);
 		vec3 viewDir = normalize(viewPos - FragPos);
-		vec3 reflectDir = reflect(-lightDir, norm);
+
 
 		float distance = length(SunLight.position - FragPos);
 		float attenuation = 1.0/ (SunLight.constant + SunLight.linear * distance +

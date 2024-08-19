@@ -45,6 +45,8 @@ void main()
 	//diffuse lighting
 	vec3 norm = normalize(Normal);
 	vec3 lightDir = normalize(SunLight.position - FragPos);
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
 	
 
 	float diff = max(dot(lightDir, norm), 0.0);
@@ -66,10 +68,9 @@ void main()
 	}
 
 	//specular lighting
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 reflectDir = reflect(-lightDir, norm);
+	//vec3 reflectDir = reflect(-lightDir, norm);
 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), PlanetMtl.shineFactor);
+	float spec = pow(max(dot(norm, halfwayDir), 0.0), PlanetMtl.shineFactor);
 	vec3 specular =SunLight.specular * spec * vec3(texture(PlanetMtl.specular, TexCoords));
 
 
@@ -79,7 +80,7 @@ void main()
 		SunLight.quadratic * (distance * distance));
 
 
-	//phong lighting combination
+	//blinn-phong lighting combination
 	vec3 result = ambient + diffuse + specular;
 	FragColor = vec4(result, 1.0);
 }
