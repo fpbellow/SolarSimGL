@@ -28,8 +28,6 @@ public:
 
 	Cubemap();
 
-	void Generate(unsigned int width, unsigned int height, std::vector<unsigned char*> data);
-
 	void Bind() const;
 };
 

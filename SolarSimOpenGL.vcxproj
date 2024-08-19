@@ -145,6 +145,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Sources\Camera.cpp" />
     <ClCompile Include="Sources\Cubemap.cpp" />
+    <ClCompile Include="Sources\Frame_Buffer.cpp" />
     <ClCompile Include="Sources\Mesh.cpp" />
     <ClCompile Include="Sources\Model.cpp" />
     <ClCompile Include="Sources\Planets_Config.cpp" />
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="Headers\camera.h" />
     <ClInclude Include="Headers\cubemap.h" />
+    <ClInclude Include="Headers\frame_buffer.h" />
     <ClInclude Include="Headers\mesh.h" />
     <ClInclude Include="Headers\model.h" />
     <ClInclude Include="Headers\planets_config.h" />
@@ -168,6 +170,8 @@
     <None Include="Shaders\atmosphere.vert" />
     <None Include="Shaders\planets.frag" />
     <None Include="Shaders\planets.vert" />
+    <None Include="Shaders\screen.frag" />
+    <None Include="Shaders\screen.vert" />
     <None Include="Shaders\skybox.frag" />
     <None Include="Shaders\skybox.vert" />
     <None Include="Shaders\sun.frag" />

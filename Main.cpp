@@ -12,6 +12,7 @@
 #include "Headers/camera.h"
 #include "Headers/model.h"
 #include "Headers/planets_config.h"
+#include "Headers/frame_buffer.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -37,9 +38,6 @@ float fcoef = 1000.0;
 //timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-//default colors
-glm::vec3 lightColor = glm::vec3(1.0f);
 
 bool toggleHud = false;
 
@@ -87,6 +85,8 @@ int main()
     glBlendEquation(GL_FUNC_ADD);
 
     
+    //frame buffer
+    FrameBuffer frameBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT);
 
     //shader programs
     ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
@@ -101,11 +101,17 @@ int main()
     ResourceManager::LoadShader("Shaders/skybox.vert", "Shaders/skybox.frag", nullptr, "galaxyShade");
     Shader galaxyShader = ResourceManager::GetShader("galaxyShade");
 
+    ResourceManager::LoadShader("Shaders/screen.vert", "Shaders/screen.frag", nullptr, "screenShade");
+    Shader screenShader = ResourceManager::GetShader("screenShade");
+
+
     //skybox configuration and texture
     Galaxy galaxy = PlanetsConfig::GalaxyConfig(galaxyShader);
 
     ResourceManager::LoadCubemap(galaxy.faces, "skybox");
     galaxy.skybox = ResourceManager::GetCubemap("skybox");
+
+
 
     //earth additional textures
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_nightmap.jpg", "EarthNight");
@@ -113,6 +119,7 @@ int main()
 
     ResourceManager::LoadTexture("Assets/objects/earth/8k_earth_clouds.jpg", "EarthClouds");
     Texture2D earthClouds = ResourceManager::GetTexture("EarthClouds");
+
 
 
     Material objectMat;
@@ -124,16 +131,22 @@ int main()
 
     sunLight.ambient = 0.025f;
     sunLight.diffuse = 0.5f;
-    sunLight.specular = lightColor;
+    sunLight.specular = glm::vec3(1.0f);;
 
     sunLight.constant = 1.0f;
     sunLight.linear = 0.007f;
     sunLight.quadratic = 0.0002f;
 
 
+    
     Model earth("Assets/objects/earth/earth.obj");
     Model sun("Assets/objects/sun/sun.obj");
 
+    screenShader.Use();
+    screenShader.SetInt("screenTexture", 0);
+
+
+    // main loop
     while (!glfwWindowShouldClose(window))
     {
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -146,7 +159,8 @@ int main()
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-   
+
+        frameBuffer.Bind();
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -180,7 +194,7 @@ int main()
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
 
-        //atmosphere
+        //earth atmosphere
         atmoShader.Use();
         atmoShader.SetMat4("projection", projection);
         atmoShader.SetMat4("view", view);
@@ -217,11 +231,16 @@ int main()
         PlanetsConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
         glDepthFunc(GL_LESS);
 
+        frameBuffer.Draw(screenShader);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    //deallocate resources
     glDeleteVertexArrays(1, &galaxy.vao);
     ResourceManager::Clear();
+
     glfwDestroyWindow(window);
 
     glfwTerminate();
