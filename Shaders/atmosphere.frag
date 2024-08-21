@@ -31,9 +31,8 @@ uniform Material PlanetMtl;
 uniform Light SunLight;
 
 
-float lightIntensity = 0.7;
 float surfaceRadius = 0.4505;
-float atmoRadius = 0.4825;
+float atmoRadius = 0.4755;
 
 // math const
 const float PI = 3.14159265359;
@@ -91,7 +90,11 @@ float mie_phase(float g, float c, float cc)
 float density(vec3 p, float ph)
 {
 	float altitude = length(p) - surfaceRadius;
-	return exp(-max(altitude, 0.0)/ ph);
+	float rho_0 = 1.225;
+
+	float rho = rho_0 * exp(-max(altitude, 0.0));
+	return rho * ph;
+	//return exp(-max(altitude, 0.0)/ ph) *0.8;
 }
 
 float optic(vec3 p, vec3 q, float ph)
@@ -112,9 +115,9 @@ float optic(vec3 p, vec3 q, float ph)
 
 vec4 in_scatter(vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity)
 {
-	const float ph_ray = 0.2;
-    const float ph_mie = 0.1;
-	const float ph_alpha = 0.3;
+	const float ph_ray = 0.35;
+    const float ph_mie = 0.25;
+	const float ph_alpha = 0.35;
 
     const vec3 k_ray = vec3(3.8, 13.5, 33.1);
     const vec3 k_mie = vec3(21.0);
@@ -159,7 +162,7 @@ vec4 in_scatter(vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity)
 	float c = dot(dir, -l);
 	float cc = c * c;
 	vec3 scatter = sum_ray * k_ray * rayleigh_phase(cc) 
-		+ sum_mie * k_mie * mie_phase(-0.78, c, cc);
+		+ sum_mie * k_mie * mie_phase(-0.8, c, cc);
 
 	float alpha = sum_alpha * k_alpha;
 	return vec4(scatter * l_intensity, alpha);
@@ -182,6 +185,7 @@ void main()
 		e.y = min(e.y, f.x);
 		
 		vec4 I = in_scatter(FragPos.xyz, viewDir, e, -lightDir, attenuation );
-		vec4 I_gamma = pow(I, vec4(1.0/ 2.2));
+		vec4 result = vec4(1.0) - exp(-I * 1.95);
+		vec4 I_gamma = pow(result, vec4(1.0/ 1.65));
 		FragColor = I_gamma;
 }

@@ -39,7 +39,7 @@ void FrameBuffer::Generate(unsigned int screenWidth, unsigned int screenHeight)
 	glGenTextures(1, &this->textureId);
 	glBindTexture(GL_TEXTURE_2D, this->textureId);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, screenWidth, screenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -73,7 +73,6 @@ void FrameBuffer::Draw(Shader shader)
 	glDisable(GL_DEPTH_TEST);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	shader.Use();
 	glBindVertexArray(this->screenVAO);
 	glBindTexture(GL_TEXTURE_2D, this->textureId);
 	glDrawArrays(GL_TRIANGLES, 0, 6);

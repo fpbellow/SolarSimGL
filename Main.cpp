@@ -128,8 +128,9 @@ int main()
     Light sunLight;
     sunLight.position = glm::vec3(100.0, 2.0, 2.0);
     sunLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    sunLight.exposue = 3.65;
 
-    sunLight.ambient = 0.025f;
+    sunLight.ambient = 0.05f;
     sunLight.diffuse = 0.5f;
     sunLight.specular = glm::vec3(1.0f);;
 
@@ -201,9 +202,8 @@ int main()
 
         PlanetsConfig::LightingConfig(atmoShader, sunLight);
         PlanetsConfig::MaterialConfig(atmoShader, objectMat);
-        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0), glm::vec3(1.01));
+        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0f), glm::vec3(1.01f));
         atmoShader.SetVec3f("viewPos", camera.Position);
-
 
         glEnable(GL_BLEND);
         earth.Draw(atmoShader);
@@ -219,7 +219,8 @@ int main()
         sunShader.SetMat4("projection", projection);
         sunShader.SetMat4("view", view);
 
-        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025));
+        sunShader.SetVec3f("sunColor", glm::vec3(5.0f));
+        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025f));
         sun.Draw(sunShader);
 
         //draw skybox last
@@ -231,6 +232,9 @@ int main()
         PlanetsConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
         glDepthFunc(GL_LESS);
 
+        //draw postprocess quad
+        screenShader.Use();
+        screenShader.SetFloat("exposure", sunLight.exposue);
         frameBuffer.Draw(screenShader);
 
         glfwSwapBuffers(window);

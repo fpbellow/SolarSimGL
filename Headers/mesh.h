@@ -7,8 +7,8 @@
 
 #include "shader.h"
 
-#include <string>;
-#include <vector>;
+#include <string>
+#include <vector>
 
 #define MAX_BONE_INFLUENCE 4
 

@@ -61,7 +61,7 @@ void main()
 		diffuse += (1.0 - diff) < 0.7 ? vec3(0.0) : nightMap;
 
 		//cloud layer
-		float diffTwo = max(diff, 0.15);
+		float diffTwo = max(diff, ambient.x * 2.0);
 		//vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords + vec2(-u_time * 0.01,0.0)));
 		vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
 		diffuse += cloudMap;
@@ -81,6 +81,6 @@ void main()
 
 
 	//blinn-phong lighting combination
-	vec3 result = ambient + diffuse + specular;
+	vec3 result = (specular + diffuse) * attenuation;
 	FragColor = vec4(result, 1.0);
 }
