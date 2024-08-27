@@ -1,36 +1,13 @@
 #include "../Headers/frame_buffer.h"
 
-FrameBuffer::FrameBuffer(unsigned int screenWidth, unsigned int screenHeight)
+FrameBuffer::FrameBuffer(unsigned int screenWidth, unsigned int screenHeight, unsigned int rbo, unsigned int colorBuffers, unsigned int colorAttach) : ColorBuffers(colorBuffers)
 {
-	Generate(screenWidth, screenHeight);
+	this->RBO = rbo;
+	Generate(screenWidth, screenHeight, colorAttach);
 }
 
-void FrameBuffer::Generate(unsigned int screenWidth, unsigned int screenHeight)
+void FrameBuffer::Generate(unsigned int screenWidth, unsigned int screenHeight, unsigned int colorAttach)
 {
-	float quadVertices[] = { // vertex attributes for screen quad
-		// positions   // texCoords
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		-1.0f, -1.0f,  0.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-
-		-1.0f,  1.0f,  0.0f, 1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f,
-		 1.0f,  1.0f,  1.0f, 1.0f
-	};
-
-	//scren quad configuration
-	unsigned int quadVBO;
-	glGenVertexArrays(1, &this->screenVAO);
-	glGenBuffers(1, &quadVBO);
-	glBindVertexArray(this->screenVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-
 	//generate and bind frame buffer
 	glGenFramebuffers(1, &this->id);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->id);
@@ -46,11 +23,10 @@ void FrameBuffer::Generate(unsigned int screenWidth, unsigned int screenHeight)
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->textureId, 0);
 
 	//render buffer object
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	
+	glBindRenderbuffer(GL_RENDERBUFFER, this->RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, this->RBO);
 
 	//check if framebuffer complete
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -66,14 +42,3 @@ void FrameBuffer::Bind() const
 	glEnable(GL_DEPTH_TEST);
 }
 
-void FrameBuffer::Draw(Shader shader)
-{
-	//bind back to default fb; disable depth test; clear relevant buffers
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDisable(GL_DEPTH_TEST);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glBindVertexArray(this->screenVAO);
-	glBindTexture(GL_TEXTURE_2D, this->textureId);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-}

@@ -12,16 +12,16 @@ class FrameBuffer
 public:
 	unsigned int id;
 	unsigned int textureId; //uint for color attachment texture
-	unsigned int screenVAO;
+	unsigned int RBO;
+	unsigned int ColorBuffers;
 
-	FrameBuffer(unsigned int screenWidth, unsigned int screenHeight);
+	FrameBuffer(unsigned int screenWidth, unsigned int screenHeight, unsigned int rbo, unsigned int colorBuffers, unsigned int colorAttach);
 
 	void Bind() const;
 
-	void Draw(Shader shader);
 
 private:
-	void Generate(unsigned int screenWidth, unsigned int screenHeight);
+	void Generate(unsigned int screenWidth, unsigned int screenHeight, unsigned int colorAttach);
 
 };
 

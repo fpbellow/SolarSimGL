@@ -173,3 +173,4 @@ void SystemConfig::RenderQuad(unsigned int quadVAO)
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
+

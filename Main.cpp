@@ -86,7 +86,9 @@ int main()
 
     
     //frame buffer
-    FrameBuffer frameBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT);
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    FrameBuffer frameBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT,rbo, 1, 0);
 
     //shader programs
     ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
@@ -235,11 +237,10 @@ int main()
         //draw postprocess quad
         screenShader.Use();
         screenShader.SetFloat("exposure", sunLight.exposue);
-        //frameBuffer.Draw(screenShader);
+
         unsigned int screenVAO = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glDisable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glGenVertexArrays(1, &screenVAO);
         glBindVertexArray(screenVAO);
         glBindTexture(GL_TEXTURE_2D, frameBuffer.textureId);

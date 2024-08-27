@@ -93,8 +93,8 @@ float density(vec3 p, float ph)
 	float rho_0 = 1.225;
 
 	float rho = rho_0 * exp(-max(altitude, 0.0));
-	return rho * ph;
-	//return exp(-max(altitude, 0.0)/ ph) *0.8;
+	return rho * ph *1.6;
+	//return exp(-max(altitude, 0.0)/ ph);
 }
 
 float optic(vec3 p, vec3 q, float ph)

@@ -58,6 +58,9 @@ public:
     Galaxy static GalaxyConfig(Shader shader);
     void static GalaxyDraw(unsigned int galaxyVao, Cubemap skybox);
 
+    //rbo
+    void static ConfigRBO(unsigned int screenWidth, unsigned int screenHeight, unsigned int rbo);
+
     //screen quad
     void static ConfigQuad(unsigned int quadVAO);
     void static RenderQuad(unsigned int quadVAO);
