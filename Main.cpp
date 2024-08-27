@@ -11,7 +11,7 @@
 #include "Headers/resource_manager.h"
 #include "Headers/camera.h"
 #include "Headers/model.h"
-#include "Headers/planets_config.h"
+#include "Headers/system_config.h"
 #include "Headers/frame_buffer.h"
 
 
@@ -106,7 +106,7 @@ int main()
 
 
     //skybox configuration and texture
-    Galaxy galaxy = PlanetsConfig::GalaxyConfig(galaxyShader);
+    Galaxy galaxy = SystemConfig::GalaxyConfig(galaxyShader);
 
     ResourceManager::LoadCubemap(galaxy.faces, "skybox");
     galaxy.skybox = ResourceManager::GetCubemap("skybox");
@@ -181,16 +181,16 @@ int main()
         planetShader.SetVec3f("viewPos", camera.Position);
 
         //lighting properties
-        PlanetsConfig::LightingConfig(planetShader, sunLight);
+        SystemConfig::LightingConfig(planetShader, sunLight);
 
         // material properties
-        PlanetsConfig::MaterialConfig(planetShader, objectMat);
+        SystemConfig::MaterialConfig(planetShader, objectMat);
    
    
         //earth
         planetShader.SetBool("PlanetMtl.earth", true);
         planetShader.SetFloat("u_time", static_cast<float>(glfwGetTime()));
-        PlanetsConfig::EarthConfig(planetShader, glm::vec3(0.0), glm::vec3(1.0), earthNight, earthClouds, static_cast<float>(glfwGetTime()));
+        SystemConfig::EarthConfig(planetShader, glm::vec3(0.0), glm::vec3(1.0), earthNight, earthClouds, static_cast<float>(glfwGetTime()));
 
         earth.Draw(planetShader);
         planetShader.SetBool("PlanetMtl.earth", false);
@@ -200,9 +200,9 @@ int main()
         atmoShader.SetMat4("projection", projection);
         atmoShader.SetMat4("view", view);
 
-        PlanetsConfig::LightingConfig(atmoShader, sunLight);
-        PlanetsConfig::MaterialConfig(atmoShader, objectMat);
-        PlanetsConfig::PlanetConfig(atmoShader, glm::vec3(0.0f), glm::vec3(1.01f));
+        SystemConfig::LightingConfig(atmoShader, sunLight);
+        SystemConfig::MaterialConfig(atmoShader, objectMat);
+        SystemConfig::PlanetConfig(atmoShader, glm::vec3(0.0f), glm::vec3(1.01f));
         atmoShader.SetVec3f("viewPos", camera.Position);
 
         glEnable(GL_BLEND);
@@ -211,7 +211,7 @@ int main()
 
 
         ////venus
-        //PlanetsConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));
+        //SystemConfig::PlanetConfig(planetShader, glm::vec3(1.0, 0.0, 0.0), glm::vec3(1.0));
         //venus.Draw(planetShader);
 
         //sun
@@ -220,7 +220,7 @@ int main()
         sunShader.SetMat4("view", view);
 
         sunShader.SetVec3f("sunColor", glm::vec3(5.0f));
-        PlanetsConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025f));
+        SystemConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025f));
         sun.Draw(sunShader);
 
         //draw skybox last
@@ -229,7 +229,7 @@ int main()
         view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         galaxyShader.SetMat4("view", view);
         galaxyShader.SetMat4("projection", projection);
-        PlanetsConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
+        SystemConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
         glDepthFunc(GL_LESS);
 
         //draw postprocess quad

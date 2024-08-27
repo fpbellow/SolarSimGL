@@ -1,7 +1,7 @@
-#include "../Headers/planets_config.h"
+#include "../Headers/system_config.h"
 #include "../Headers/resource_manager.h"
 
-void PlanetsConfig::LightingConfig(Shader shader, Light light)
+void SystemConfig::LightingConfig(Shader shader, Light light)
 {
     shader.SetVec3f("SunLight.position", light.position);
     shader.SetVec3f("SunLight.direction", light.direction);
@@ -16,14 +16,14 @@ void PlanetsConfig::LightingConfig(Shader shader, Light light)
 
 }
 
-void PlanetsConfig::MaterialConfig(Shader shader, Material mtl)
+void SystemConfig::MaterialConfig(Shader shader, Material mtl)
 {
     shader.SetInt("PlanetMtl.diffuse", 0);
     shader.SetInt("PlanetMtl.specular", 1);
     shader.SetFloat("PlanetMtl.shineFactor", mtl.shineFact);
 }
 
-void PlanetsConfig::EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scale, Texture2D nightMap, Texture2D cloudMap, float time)
+void SystemConfig::EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scale, Texture2D nightMap, Texture2D cloudMap, float time)
 {
     shader.Use();
     glm::mat4 model = glm::mat4(1.0);
@@ -44,7 +44,7 @@ void PlanetsConfig::EarthConfig(Shader shader, glm::vec3 position, glm::vec3 sca
     cloudMap.Bind();
 }
 
-void PlanetsConfig::PlanetConfig(Shader shader, glm::vec3 position, glm::vec3 scale)
+void SystemConfig::PlanetConfig(Shader shader, glm::vec3 position, glm::vec3 scale)
 {
     shader.Use();
     glm::mat4 model = glm::mat4(1.0);
@@ -53,7 +53,7 @@ void PlanetsConfig::PlanetConfig(Shader shader, glm::vec3 position, glm::vec3 sc
     shader.SetMat4("model", model);
 }
 
-Galaxy PlanetsConfig::GalaxyConfig(Shader shader)
+Galaxy SystemConfig::GalaxyConfig(Shader shader)
 {
     Galaxy galaxy;
 
@@ -132,11 +132,41 @@ Galaxy PlanetsConfig::GalaxyConfig(Shader shader)
     return galaxy;
 }
 
-void PlanetsConfig::GalaxyDraw(unsigned int galaxyVao, Cubemap skybox)
+void SystemConfig::GalaxyDraw(unsigned int galaxyVao, Cubemap skybox)
 {
     glBindVertexArray(galaxyVao);
     glActiveTexture(GL_TEXTURE0);
     skybox.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+void SystemConfig::RenderQuad(unsigned int quadVAO)
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = { // vertex attributes for screen quad
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
+        };
+
+        //scren quad configuration
+        unsigned int quadVBO;
+        glGenBuffers(1, &quadVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }

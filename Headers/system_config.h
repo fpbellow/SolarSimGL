@@ -1,5 +1,5 @@
-#ifndef PLANETS_CONFIG_H
-#define PLANETS_CONFIG_H
+#ifndef SYSTEM_CONFIG_H
+#define SYSTEM_CONFIG_H
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -42,9 +42,10 @@ struct Galaxy
     unsigned int vao;
 };
 
-class PlanetsConfig
+class SystemConfig
 {
 public:
+
     //shader config
     void static LightingConfig(Shader shader, Light light);
     void static MaterialConfig(Shader shader, Material mtl);
@@ -57,8 +58,11 @@ public:
     Galaxy static GalaxyConfig(Shader shader);
     void static GalaxyDraw(unsigned int galaxyVao, Cubemap skybox);
 
+    //screen quad
+    void static RenderQuad(unsigned int quadVAO);
+
 private:
-    PlanetsConfig() {}
+    SystemConfig() {}
 };
 
 #endif
