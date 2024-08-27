@@ -59,6 +59,7 @@ public:
     void static GalaxyDraw(unsigned int galaxyVao, Cubemap skybox);
 
     //screen quad
+    void static ConfigQuad(unsigned int quadVAO);
     void static RenderQuad(unsigned int quadVAO);
 
 private:

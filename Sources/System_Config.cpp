@@ -141,10 +141,9 @@ void SystemConfig::GalaxyDraw(unsigned int galaxyVao, Cubemap skybox)
     glBindVertexArray(0);
 }
 
-void SystemConfig::RenderQuad(unsigned int quadVAO)
+void SystemConfig::ConfigQuad(unsigned int quadVAO)
 {
-    if (quadVAO == 0)
-    {
+
         float quadVertices[] = { // vertex attributes for screen quad
             // positions   // texCoords
             -1.0f,  1.0f,  0.0f, 1.0f,
@@ -157,6 +156,7 @@ void SystemConfig::RenderQuad(unsigned int quadVAO)
         };
 
         //scren quad configuration
+        glGenVertexArrays(1, &quadVAO);
         unsigned int quadVBO;
         glGenBuffers(1, &quadVBO);
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
@@ -165,7 +165,10 @@ void SystemConfig::RenderQuad(unsigned int quadVAO)
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    }
+}
+
+void SystemConfig::RenderQuad(unsigned int quadVAO)
+{
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);

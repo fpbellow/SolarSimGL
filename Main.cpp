@@ -235,7 +235,16 @@ int main()
         //draw postprocess quad
         screenShader.Use();
         screenShader.SetFloat("exposure", sunLight.exposue);
-        frameBuffer.Draw(screenShader);
+        //frameBuffer.Draw(screenShader);
+        unsigned int screenVAO = 0;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glGenVertexArrays(1, &screenVAO);
+        glBindVertexArray(screenVAO);
+        glBindTexture(GL_TEXTURE_2D, frameBuffer.textureId);
+        SystemConfig::ConfigQuad(screenVAO);
+        SystemConfig::RenderQuad(screenVAO);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
