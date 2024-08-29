@@ -48,7 +48,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    //glfwWindowHint(GLFW_SAMPLES, 4);
 
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "SolarSim", NULL, NULL);
@@ -80,15 +80,23 @@ int main()
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_MULTISAMPLE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
     
-    //frame buffer
+    //frame buffers
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
-    FrameBuffer frameBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT,rbo, 1, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+
+    FrameBuffer hdrBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT,rbo, 1, 2, 1);
+ 
+    FrameBuffer blurBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT, 0, 2, 2, 0);
+
 
     //shader programs
     ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
@@ -105,6 +113,9 @@ int main()
 
     ResourceManager::LoadShader("Shaders/screen.vert", "Shaders/screen.frag", nullptr, "screenShade");
     Shader screenShader = ResourceManager::GetShader("screenShade");
+
+    ResourceManager::LoadShader("Shaders/gaussian_blur.vert", "Shaders/gaussian_blur.frag", nullptr, "blurShade");
+    Shader blurShader = ResourceManager::GetShader("blurShade");
 
 
     //skybox configuration and texture
@@ -128,7 +139,7 @@ int main()
     objectMat.shineFact = 32.0f;
 
     Light sunLight;
-    sunLight.position = glm::vec3(100.0, 2.0, 2.0);
+    sunLight.position = glm::vec3(80.0, 2.0, 2.0);
     sunLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
     sunLight.exposue = 3.65;
 
@@ -145,8 +156,12 @@ int main()
     Model earth("Assets/objects/earth/earth.obj");
     Model sun("Assets/objects/sun/sun.obj");
 
+    blurShader.Use();
+    blurShader.SetInt("image", 0);
+
     screenShader.Use();
     screenShader.SetInt("screenTexture", 0);
+    screenShader.SetInt("bloomBlur", 1);
 
 
     // main loop
@@ -163,7 +178,7 @@ int main()
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        frameBuffer.Bind();
+        hdrBuffer.Bind(0);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -221,7 +236,7 @@ int main()
         sunShader.SetMat4("projection", projection);
         sunShader.SetMat4("view", view);
 
-        sunShader.SetVec3f("sunColor", glm::vec3(5.0f));
+        sunShader.SetVec3f("sunColor", glm::vec3(6.0f));
         SystemConfig::PlanetConfig(sunShader, sunLight.position, glm::vec3(0.025f));
         sun.Draw(sunShader);
 
@@ -234,17 +249,42 @@ int main()
         SystemConfig::GalaxyDraw(galaxy.vao, galaxy.skybox);
         glDepthFunc(GL_LESS);
 
-        //draw postprocess quad
-        screenShader.Use();
-        screenShader.SetFloat("exposure", sunLight.exposue);
 
         unsigned int screenVAO = 0;
+        glGenVertexArrays(1, &screenVAO); 
+
+        //blur bright fragments with gaussian
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindVertexArray(screenVAO); 
+        SystemConfig::ConfigQuad(screenVAO); 
+        bool horizontal = true, first_iter = true;
+        unsigned int amount = 10;
+        blurShader.Use();
+        for (unsigned int i = 0; i < amount; i++)
+        {
+            blurBuffer.Bind(horizontal);
+            blurShader.SetInt("horizontal", horizontal);
+            glBindTexture(GL_TEXTURE_2D, first_iter ? hdrBuffer.textureId[1] : blurBuffer.textureId[!horizontal]);
+            SystemConfig::RenderQuad(screenVAO);
+            horizontal = !horizontal;
+            if (first_iter)
+                first_iter = false;
+            
+        }
+
+
+        //draw postprocess quad
+        
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glGenVertexArrays(1, &screenVAO);
         glBindVertexArray(screenVAO);
-        glBindTexture(GL_TEXTURE_2D, frameBuffer.textureId);
-        SystemConfig::ConfigQuad(screenVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, hdrBuffer.textureId[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, blurBuffer.textureId[!horizontal]);
+        screenShader.Use();
+        screenShader.SetFloat("exposure", sunLight.exposue);
         SystemConfig::RenderQuad(screenVAO);
 
         glfwSwapBuffers(window);
@@ -300,6 +340,7 @@ void processInput(GLFWwindow* window)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+
 }
 
 void mouse_callback(GLFWwindow* window, double xposin, double yposin)

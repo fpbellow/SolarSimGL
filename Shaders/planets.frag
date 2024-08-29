@@ -1,4 +1,7 @@
 #version 330 core
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
+
 struct Material 
 {
 	sampler2D diffuse;
@@ -28,7 +31,6 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
 
-out vec4 FragColor;
 
 uniform vec3 viewPos;
 uniform float u_time;
@@ -62,8 +64,8 @@ void main()
 
 		//cloud layer
 		float diffTwo = max(diff, ambient.x * 2.0);
-		//vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords + vec2(-u_time * 0.01,0.0)));
-		vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
+		vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords + vec2(-u_time * 0.001,0.0)));
+		//vec3 cloudMap = diffTwo * vec3(texture(PlanetMtl.textureLayer2, TexCoords));
 		diffuse += cloudMap;
 	}
 
@@ -82,5 +84,12 @@ void main()
 
 	//blinn-phong lighting combination
 	vec3 result = (specular + diffuse) * attenuation;
+
+	//bloom threshold check
+	float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > 1.0)
+		BrightColor = vec4(result, 1.0);
+	else 
+		BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 	FragColor = vec4(result, 1.0);
 }

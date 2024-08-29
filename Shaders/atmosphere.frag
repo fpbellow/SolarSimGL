@@ -1,5 +1,7 @@
 #version 330 core
 //reference: https://glitch.com/~polite-playful-wool by Brian Jackson
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 struct Material 
 {
@@ -23,7 +25,7 @@ struct Light
 in vec3 Normal;
 in vec3 FragPos;
 
-out vec4 FragColor;
+//out vec4 FragColor;
 
 uniform vec3 viewPos;
 
@@ -32,7 +34,7 @@ uniform Light SunLight;
 
 
 float surfaceRadius = 0.4505;
-float atmoRadius = 0.4755;
+float atmoRadius = 0.4785;
 
 // math const
 const float PI = 3.14159265359;
@@ -93,8 +95,7 @@ float density(vec3 p, float ph)
 	float rho_0 = 1.225;
 
 	float rho = rho_0 * exp(-max(altitude, 0.0));
-	return rho * ph *1.6;
-	//return exp(-max(altitude, 0.0)/ ph);
+	return rho * ph * 1.66;
 }
 
 float optic(vec3 p, vec3 q, float ph)
@@ -171,7 +172,7 @@ vec4 in_scatter(vec3 o, vec3 dir, vec2 e, vec3 l, float l_intensity)
 void main() 
 {
 		vec3 norm = normalize(Normal);
-		vec3 lightDir = normalize(SunLight.position - FragPos);
+		vec3 lightDir = normalize(FragPos - SunLight.position);
 		vec3 viewDir = normalize(viewPos - FragPos);
 
 
@@ -179,13 +180,20 @@ void main()
 		float attenuation = 1.0/ (SunLight.constant + SunLight.linear * distance +
 		SunLight.quadratic * (distance * distance));
 
-		vec2 e = ray_sphere_intersect(FragPos.xyz, viewDir, atmoRadius);
+		vec2 e = ray_sphere_intersect(FragPos.xyz, -viewDir, atmoRadius);
 
-		vec2 f = ray_sphere_intersect(FragPos.xyz, viewDir, surfaceRadius);
+		vec2 f = ray_sphere_intersect(FragPos.xyz, -viewDir, surfaceRadius);
 		e.y = min(e.y, f.x);
 		
-		vec4 I = in_scatter(FragPos.xyz, viewDir, e, -lightDir, attenuation );
+		vec4 I = in_scatter(FragPos.xyz, -viewDir, e, -lightDir, attenuation );
+
 		vec4 result = vec4(1.0) - exp(-I * 1.95);
 		vec4 I_gamma = pow(result, vec4(1.0/ 1.65));
+
+		float brightness = dot(I_gamma.rgb, vec3(0.2126, 0.7152, 0.0722));
+		if(brightness > 1.0)
+			BrightColor = vec4(I_gamma.rgb, 1.0);
+		else 
+			BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 		FragColor = I_gamma;
 }

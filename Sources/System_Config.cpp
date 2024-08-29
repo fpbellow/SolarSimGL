@@ -28,8 +28,8 @@ void SystemConfig::EarthConfig(Shader shader, glm::vec3 position, glm::vec3 scal
     shader.Use();
     glm::mat4 model = glm::mat4(1.0);
     model = glm::translate(model, position); 
-    //model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    //model = glm::rotate(model, glm::radians(1.0f) * (1.25f * time), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::rotate(model, glm::radians(1.0f) * (1.25f * time), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::scale(model, scale);
     shader.SetMat4("model", model);
 

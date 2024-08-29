@@ -168,6 +168,8 @@
   <ItemGroup>
     <None Include="Shaders\atmosphere.frag" />
     <None Include="Shaders\atmosphere.vert" />
+    <None Include="Shaders\gaussian_blur.frag" />
+    <None Include="Shaders\gaussian_blur.vert" />
     <None Include="Shaders\planets.frag" />
     <None Include="Shaders\planets.vert" />
     <None Include="Shaders\screen.frag" />
