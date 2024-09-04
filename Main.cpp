@@ -84,19 +84,62 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
-    
-    //frame buffers
+    /////////////////
+    //hdr framebuffer
+    unsigned int hdrFbo;
+    glGenFramebuffers(1, &hdrFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFbo);
+
+    unsigned int hdrColorBuffers[2];
+    glGenTextures(2, hdrColorBuffers);
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        glBindTexture(GL_TEXTURE_2D, hdrColorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, hdrColorBuffers[i], 0);
+    }
+
+    //render buffer
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    //color attachment specification
+    unsigned int colorAttachs[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, colorAttachs);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete" << std::endl;
 
 
-    FrameBuffer hdrBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT,rbo, 1, 2, 1);
- 
-    FrameBuffer blurBuffer = FrameBuffer(SCR_WIDTH, SCR_HEIGHT, 0, 2, 2, 0);
+    unsigned int blurFBO[2];
+    unsigned int blurColorBuffers[2];
+    glGenFramebuffers(2, blurFBO);
+    glGenTextures(2, blurColorBuffers);
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, blurColorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurColorBuffers[i], 0);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cout << "Framebuffer not complete" << std::endl;
+    }
+
+    //////////////////////
 
     //shader programs
     ResourceManager::LoadShader("Shaders/planets.vert", "Shaders/planets.frag", nullptr, "planetShade");
@@ -178,9 +221,11 @@ int main()
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        hdrBuffer.Bind(0);
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, hdrFbo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //vertex matrices
@@ -255,34 +300,33 @@ int main()
 
         //blur bright fragments with gaussian
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         glBindVertexArray(screenVAO); 
         SystemConfig::ConfigQuad(screenVAO); 
         bool horizontal = true, first_iter = true;
-        unsigned int amount = 10;
+        unsigned int amount = 6;
         blurShader.Use();
         for (unsigned int i = 0; i < amount; i++)
         {
-            blurBuffer.Bind(horizontal);
+            glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[horizontal]);
             blurShader.SetInt("horizontal", horizontal);
-            glBindTexture(GL_TEXTURE_2D, first_iter ? hdrBuffer.textureId[1] : blurBuffer.textureId[!horizontal]);
+            glBindTexture(GL_TEXTURE_2D, first_iter ? hdrColorBuffers[1] : blurColorBuffers[!horizontal]);
             SystemConfig::RenderQuad(screenVAO);
             horizontal = !horizontal;
             if (first_iter)
                 first_iter = false;
-            
         }
 
 
         //draw postprocess quad
-        
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindVertexArray(screenVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, hdrBuffer.textureId[0]);
+        glBindTexture(GL_TEXTURE_2D, hdrColorBuffers[0]);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, blurBuffer.textureId[!horizontal]);
+        glBindTexture(GL_TEXTURE_2D, blurColorBuffers[0]);
         screenShader.Use();
         screenShader.SetFloat("exposure", sunLight.exposue);
         SystemConfig::RenderQuad(screenVAO);
