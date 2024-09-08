@@ -25,8 +25,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 //camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -45,10 +45,11 @@ int main()
 {
     // glfw initialize and configure
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwWindowHint(GLFW_SAMPLES, 4);
+
 
 
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "SolarSim", NULL, NULL);
@@ -177,7 +178,7 @@ int main()
     Texture2D earthClouds = ResourceManager::GetTexture("EarthClouds");
 
 
-
+    //lighting properties
     Material objectMat;
     objectMat.shineFact = 32.0f;
 
@@ -384,7 +385,6 @@ void processInput(GLFWwindow* window)
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
-
 }
 
 void mouse_callback(GLFWwindow* window, double xposin, double yposin)
