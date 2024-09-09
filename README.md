@@ -17,3 +17,4 @@ Current goals:
 Contributions:
 
 Assets and textures gathered from - https://www.solarsystemscope.com/textures/
+LearnOpenGL referenced for advanced OpenGL methods of lighting and such
