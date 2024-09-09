@@ -12,5 +12,7 @@ Current goals:
 - resolve issue with Framebuffer class so the FBOs do not need to be hardcoded in Main
 - then finish importing remaining planetary bodies and begin configuring their orbits and rotations
 
+
 Contributions:
+
 Assets and textures gathered from - https://www.solarsystemscope.com/textures/
